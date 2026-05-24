@@ -4,7 +4,10 @@ import multer from "multer";
 
 import path from "path";
 
-import runPythonScript from "../lib/pythonBridge.js";
+import {
+  runPythonScript
+}
+from "../lib/pythonBridge.js";
 
 import LogRun from "../models/LogRun.js";
 

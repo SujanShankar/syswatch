@@ -1,82 +1,276 @@
-import { useState } from "react";
+import {
+  useState
+} from "react";
 
-import UploadDropzone from "../components/UploadDropzone";
-import StatusPill from "../components/StatusPill";
-import LogMatchTable from "../components/LogMatchTable";
-import LogViewer from "../components/LogViewer";
+import UploadDropzone
+  from "../components/UploadDropzone";
+
+import SeverityBadge
+  from "../components/SeverityBadge";
+
+import LogViewer
+  from "../components/LogViewer";
+
+import Loader
+  from "../components/Loader";
+
+import {
+  analyzeLog
+} from "../services/api";
 
 function LogAnalyzer() {
-  const [uploadedFile, setUploadedFile] = useState(null);
 
-  const mockMatches = [
-    {
-      line: 42,
-      pattern: "kernel_panic",
-      severity: "CRITICAL",
-      content: "Kernel Panic - Fatal exception detected"
-    },
-    {
-      line: 87,
-      pattern: "cpu_throttle",
-      severity: "MEDIUM",
-      content: "CPU thermal throttling activated"
-    },
-    {
-      line: 120,
-      pattern: "firmware_fail",
-      severity: "HIGH",
-      content: "BIOS firmware validation failed"
+  const [loading, setLoading] =
+    useState(false);
+
+  const [results, setResults] =
+    useState(null);
+
+  async function handleUpload(file) {
+
+    try {
+      setLoading(true);
+
+      const formData =
+        new FormData();
+
+      formData.append(
+        "logfile",
+        file
+      );
+
+      const response =
+        await analyzeLog(formData);
+
+      setResults(response.data);
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert(
+        "Failed to analyze log"
+      );
+
+    } finally {
+
+      setLoading(false);
     }
-  ];
-
-  const mockLogs = [
-    "[INFO] System boot initialized",
-    "[INFO] Loading firmware modules",
-    "[WARN] CPU temperature rising",
-    "[ERROR] Kernel Panic - Fatal exception detected",
-    "[WARN] CPU thermal throttling activated",
-    "[ERROR] BIOS firmware validation failed"
-  ];
+  }
 
   return (
     <div>
+
       <div className="mb-8">
-        <h1 className="text-4xl font-bold text-cyan-400">
+
+        <h1
+          className="
+            text-4xl
+            font-bold
+            text-cyan-400
+          "
+        >
           Firmware Log Analyzer
         </h1>
 
-        <p className="mt-2 text-zinc-400">
-          Upload validation logs and detect firmware/system failures.
+        <p
+          className="
+            mt-2
+            text-zinc-400
+          "
+        >
+          Upload validation logs
+          and detect firmware
+          or system failures.
         </p>
+
       </div>
 
-      <UploadDropzone onFileUpload={setUploadedFile} />
+      <UploadDropzone
+        onUpload={handleUpload}
+      />
 
-      {uploadedFile && (
-        <div className="mt-6 rounded-2xl border border-zinc-800 bg-zinc-900 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-semibold text-white">
-                {uploadedFile.name}
-              </h2>
-
-              <p className="mt-1 text-zinc-400">
-                Log analysis completed successfully.
-              </p>
-            </div>
-
-            <StatusPill status="FAIL" />
-          </div>
+      {loading && (
+        <div className="mt-8">
+          <Loader />
         </div>
       )}
 
-      {uploadedFile && (
-        <>
-          <LogMatchTable matches={mockMatches} />
+      {results && !loading && (
 
-          <LogViewer logs={mockLogs} />
-        </>
+        <div className="mt-8 space-y-6">
+
+          <div
+            className="
+              flex
+              items-center
+              justify-between
+              rounded-2xl
+              border
+              border-zinc-800
+              bg-zinc-900/70
+              p-5
+            "
+          >
+
+            <div>
+
+              <h2
+                className="
+                  text-xl
+                  font-semibold
+                  text-white
+                "
+              >
+                {results.filename}
+              </h2>
+
+              <p
+                className="
+                  mt-1
+                  text-sm
+                  text-zinc-400
+                "
+              >
+                Analysis completed
+                successfully.
+              </p>
+
+            </div>
+
+            <SeverityBadge
+              severity={
+                results.verdict
+              }
+            />
+
+          </div>
+
+          <div
+            className="
+              overflow-hidden
+              rounded-2xl
+              border
+              border-zinc-800
+              bg-zinc-900/70
+            "
+          >
+
+            <div
+              className="
+                border-b
+                border-zinc-800
+                p-4
+              "
+            >
+
+              <h3
+                className="
+                  text-xl
+                  font-semibold
+                  text-cyan-400
+                "
+              >
+                Detected Log Matches
+              </h3>
+
+            </div>
+
+            <table className="w-full">
+
+              <thead
+                className="
+                  bg-zinc-800/40
+                  text-left
+                  text-sm
+                  text-zinc-400
+                "
+              >
+
+                <tr>
+
+                  <th className="p-4">
+                    Line
+                  </th>
+
+                  <th className="p-4">
+                    Pattern
+                  </th>
+
+                  <th className="p-4">
+                    Severity
+                  </th>
+
+                  <th className="p-4">
+                    Content
+                  </th>
+
+                </tr>
+
+              </thead>
+
+              <tbody>
+
+                {results.matches.map(
+                  (match, index) => (
+
+                  <tr
+                    key={index}
+
+                    className="
+                      border-t
+                      border-zinc-800
+                      text-sm
+                    "
+                  >
+
+                    <td className="p-4">
+                      {match.line_number}
+                    </td>
+
+                    <td className="p-4">
+                      {match.pattern}
+                    </td>
+
+                    <td className="p-4">
+
+                      <SeverityBadge
+                        severity={
+                          match.severity
+                        }
+                      />
+
+                    </td>
+
+                    <td
+                      className="
+                        p-4
+                        font-mono
+                        text-xs
+                        text-zinc-300
+                      "
+                    >
+                      {match.content}
+                    </td>
+
+                  </tr>
+
+                ))}
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+          <LogViewer
+            matches={results.matches}
+          />
+
+        </div>
+
       )}
+
     </div>
   );
 }

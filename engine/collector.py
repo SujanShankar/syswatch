@@ -1,7 +1,6 @@
 import json
 import platform
-
-from datetime import datetime
+from datetime import datetime, UTC
 
 from collectors.cpu import (
     get_cpu_metrics
@@ -32,20 +31,28 @@ def get_os_info():
 def collect_snapshot():
     return {
         "timestamp": (
-            datetime.utcnow().isoformat()
+            datetime.now(UTC).isoformat()
         ),
 
-        "cpu": get_cpu_metrics(),
+        "cpu": (
+            get_cpu_metrics()
+        ),
 
-        "memory": get_memory_metrics(),
+        "memory": (
+            get_memory_metrics()
+        ),
 
-        "disk": get_disk_metrics(),
+        "disk": (
+            get_disk_metrics()
+        ),
 
         "uptime_hours": (
             get_uptime_hours()
         ),
 
-        "os_info": get_os_info(),
+        "os_info": (
+            get_os_info()
+        ),
 
         "boot_logs": [
             "Boot logs unavailable on Windows"

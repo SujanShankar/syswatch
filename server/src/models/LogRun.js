@@ -1,39 +1,39 @@
 import mongoose from "mongoose";
 
-const MatchSchema = new mongoose.Schema({
-  line_number: Number,
+const logRunSchema =
+  new mongoose.Schema({
 
-  pattern: String,
+    filename: String,
 
-  severity: String,
+    analyzed_at: Date,
 
-  content: String
-});
+    total_lines: Number,
 
-const LogRunSchema = new mongoose.Schema({
-  filename: String,
+    pass_count: Number,
 
-  analyzed_at: {
-    type: Date,
-    default: Date.now
-  },
+    fail_count: Number,
 
-  total_lines: Number,
+    verdict: String,
 
-  pass_count: Number,
+    matches: [
+      {
+        line_number: Number,
 
-  fail_count: Number,
+        pattern: String,
 
-  verdict: String,
+        severity: String,
 
-  matches: [MatchSchema],
+        content: String
+      }
+    ],
 
-  summary: {
-    type: Object
-  }
-});
+    summary: Object
+  });
 
-export default mongoose.model(
-  "LogRun",
-  LogRunSchema
-);
+const LogRun =
+  mongoose.model(
+    "LogRun",
+    logRunSchema
+  );
+
+export default LogRun;

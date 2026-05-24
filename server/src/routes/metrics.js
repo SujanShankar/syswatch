@@ -1,34 +1,56 @@
 import express from "express";
 
-import runPythonScript from "../lib/pythonBridge.js";
+import Metric from
+  "../models/Metric.js";
 
-import Snapshot from "../models/Snapshot.js";
+import {
+  runPythonScript
+} from "../lib/pythonBridge.js";
 
-const router = express.Router();
+import {
+  evaluateAlerts
+} from "../services/alerts.service.js";
 
-router.get("/", async (req, res) => {
-  try {
-    const snapshot =
-      await runPythonScript(
-        "collector.py"
+const router =
+  express.Router();
+
+router.get(
+  "/",
+  async (req, res) => {
+
+    try {
+
+      const snapshot =
+        await runPythonScript(
+          "collector.py"
+        );
+
+      const savedMetric =
+        await Metric.create(
+          snapshot
+        );
+
+      await evaluateAlerts(
+        snapshot
       );
 
-    const savedSnapshot =
-      await Snapshot.create(snapshot);
+      res.json({
+        success: true,
+        data: savedMetric
+      });
 
-    res.json({
-      success: true,
-      data: savedSnapshot
-    });
-  } catch (error) {
-    console.error(error);
+    } catch (error) {
 
-    res.status(500).json({
-      success: false,
-      message:
-        "Failed to collect metrics"
-    });
+      console.error(error);
+
+      res.status(500).json({
+        success: false,
+        message:
+          "Failed to collect metrics"
+      });
+
+    }
   }
-});
+);
 
 export default router;

@@ -1,20 +1,61 @@
-function LogViewer({ logs }) {
+function LogViewer({
+  matches
+}) {
+
   return (
-    <div className="mt-8 rounded-2xl border border-zinc-800 bg-zinc-900 p-6">
-      <h2 className="mb-4 text-xl font-semibold text-cyan-400">
+
+    <div
+      className="
+        rounded-2xl
+        border
+        border-zinc-800
+        bg-zinc-900/70
+        p-5
+      "
+    >
+
+      <h2
+        className="
+          mb-4
+          text-2xl
+          font-semibold
+          text-cyan-400
+        "
+      >
         Raw Log Preview
       </h2>
 
-      <div className="max-h-96 overflow-y-auto rounded-lg bg-black p-4 font-mono text-sm text-zinc-300">
-        {logs.map((line, index) => (
+      <div
+        className="
+          space-y-2
+          rounded-xl
+          bg-black
+          p-4
+          font-mono
+          text-xs
+          text-zinc-300
+        "
+      >
+
+        {matches.map(
+          (match, index) => (
+
           <div
             key={index}
-            className="border-b border-zinc-800 py-1"
+
+            className="
+              border-b
+              border-zinc-800
+              pb-2
+            "
           >
-            {line}
+            {match.content}
           </div>
+
         ))}
+
       </div>
+
     </div>
   );
 }
