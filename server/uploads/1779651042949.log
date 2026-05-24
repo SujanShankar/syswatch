@@ -1,0 +1,5 @@
+[INFO] Boot sequence initialized
+[PASSED] CPU validation successful
+[ERROR] Kernel Panic detected
+[WARN] CPU thermal throttling activated
+[FAILED] BIOS firmware failed
