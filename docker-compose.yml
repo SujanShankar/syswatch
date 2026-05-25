@@ -1,7 +1,63 @@
 services:
-  mongodb:
+
+  frontend:
+
+    build:
+      context: ./client
+
+    container_name:
+      syswatch-frontend
+
+    ports:
+      - "5173:5173"
+
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+
+    depends_on:
+      - backend
+
+    stdin_open: true
+    tty: true
+
+
+
+  backend:
+
+    build:
+      context: .
+      dockerfile: ./server/Dockerfile
+
+    container_name:
+      syswatch-backend
+
+    ports:
+      - "5000:5000"
+
+    volumes:
+      - ./server:/app
+      - ./engine:/engine
+      - /app/node_modules
+
+    env_file:
+      - ./server/.env
+
+    depends_on:
+      - mongo
+      - postgres
+
+    stdin_open: true
+    tty: true
+
+
+
+  mongo:
+
     image: mongo
-    container_name: syswatch-mongo
+
+    container_name:
+      syswatch-mongo
 
     restart: always
 
@@ -9,12 +65,24 @@ services:
       - "27017:27017"
 
     environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: password
+
+      MONGO_INITDB_ROOT_USERNAME:
+        admin
+
+      MONGO_INITDB_ROOT_PASSWORD:
+        password
+
+    volumes:
+      - mongo_data:/data/db
+
+
 
   postgres:
-    image: postgres
-    container_name: syswatch-postgres
+
+    image: postgres:16
+
+    container_name:
+      syswatch-postgres
 
     restart: always
 
@@ -22,6 +90,23 @@ services:
       - "5433:5432"
 
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: syswatch
+
+      POSTGRES_USER:
+        postgres
+
+      POSTGRES_PASSWORD:
+        postgres
+
+      POSTGRES_DB:
+        syswatch
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+
+
+volumes:
+
+  mongo_data:
+
+  postgres_data:

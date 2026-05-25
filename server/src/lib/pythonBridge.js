@@ -1,21 +1,4 @@
-import { spawn }
-  from "child_process";
-
-import path
-  from "path";
-
-import { fileURLToPath }
-  from "url";
-
-const __filename =
-  fileURLToPath(
-    import.meta.url
-  );
-
-const __dirname =
-  path.dirname(
-    __filename
-  );
+import { spawn } from "child_process";
 
 export function runPythonScript(
   scriptName,
@@ -23,53 +6,56 @@ export function runPythonScript(
 ) {
 
   return new Promise(
+
     (resolve, reject) => {
 
-      const scriptPath =
-        path.join(
-          __dirname,
-          "../../../engine",
-          scriptName
-        );
-
-      const process =
+      const pythonProcess =
         spawn(
-          "python",
+
+          "python3",
+
           [
-            scriptPath,
+            `/engine/${scriptName}`,
             ...args
           ]
         );
 
-      let stdout = "";
-      let stderr = "";
+      let data = "";
 
-      process.stdout.on(
+      let error = "";
+
+      pythonProcess.stdout.on(
+
         "data",
-        (data) => {
 
-          stdout +=
-            data.toString();
+        (chunk) => {
+
+          data +=
+            chunk.toString();
         }
       );
 
-      process.stderr.on(
-        "data",
-        (data) => {
+      pythonProcess.stderr.on(
 
-          stderr +=
-            data.toString();
+        "data",
+
+        (chunk) => {
+
+          error +=
+            chunk.toString();
         }
       );
 
-      process.on(
+      pythonProcess.on(
+
         "close",
-        (code) => {
 
-          if (code !== 0) {
+        () => {
+
+          if (error) {
 
             reject(
-              new Error(stderr)
+              new Error(error)
             );
 
             return;
@@ -78,16 +64,12 @@ export function runPythonScript(
           try {
 
             resolve(
-              JSON.parse(stdout)
+              JSON.parse(data)
             );
 
           } catch {
 
-            reject(
-              new Error(
-                "Failed to parse Python output"
-              )
-            );
+            resolve(data);
           }
         }
       );

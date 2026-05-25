@@ -2,36 +2,45 @@ import pg from "pg";
 
 const { Pool } = pg;
 
-console.log("POSTGRES ENV CHECK:", {
-  host: process.env.PG_HOST,
-  port: process.env.PG_PORT,
-  user: process.env.PG_USER,
-  password: process.env.PG_PASSWORD,
-  database: process.env.PG_DATABASE
-});
-
 const pool = new Pool({
-  host: "127.0.0.1",
-  port: 5433,
-  user: "postgres",
-  password: "postgres",
-  database: "syswatch"
+
+  host:
+    process.env.PG_HOST,
+
+  port:
+    process.env.PG_PORT,
+
+  user:
+    process.env.PG_USER,
+
+  password:
+    process.env.PG_PASSWORD,
+
+  database:
+    process.env.PG_DATABASE
 });
 
 export async function connectPostgres() {
 
   try {
 
-    const result =
-      await pool.query(
-        "SELECT NOW()"
-      );
+    const client =
+      await pool.connect();
 
     console.log(
       "PostgreSQL connected"
     );
 
-    console.log(result.rows);
+    const result =
+      await client.query(
+        "SELECT NOW()"
+      );
+
+    console.log(
+      result.rows
+    );
+
+    client.release();
 
   } catch (error) {
 
