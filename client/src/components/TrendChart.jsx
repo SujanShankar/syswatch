@@ -1,82 +1,100 @@
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-} from "chart.js";
 
-import { Line } from "react-chartjs-2";
+  useEffect,
+  useState
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
+} from "react";
+
+import {
+
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
   Tooltip,
-  Legend
-);
+  CartesianGrid,
+  ResponsiveContainer
+
+} from "recharts";
+
+import api
+from "../services/api";
 
 function TrendChart() {
-  const data = {
-    labels: ["0m", "5m", "10m", "15m", "20m", "25m", "30m"],
 
-    datasets: [
-      {
-        label: "CPU Usage %",
-        data: [35, 42, 38, 55, 49, 60, 52],
-        borderColor: "#22d3ee",
-        backgroundColor: "#22d3ee",
-        tension: 0.4
-      }
-    ]
-  };
+  const [
 
-  const options = {
-    responsive: true,
+    history,
+    setHistory
 
-    plugins: {
-      legend: {
-        labels: {
-          color: "white"
-        }
-      }
-    },
+  ] = useState([]);
 
-    scales: {
-      x: {
-        ticks: {
-          color: "#a1a1aa"
-        },
+  useEffect(() => {
 
-        grid: {
-          color: "#27272a"
-        }
-      },
+    fetchHistory();
 
-      y: {
-        ticks: {
-          color: "#a1a1aa"
-        },
+  }, []);
 
-        grid: {
-          color: "#27272a"
-        }
-      }
+  async function fetchHistory() {
+
+    try {
+
+      const response =
+        await api.get(
+          "/history"
+        );
+
+      setHistory(
+        response.data.data
+      );
+
+    } catch (error) {
+
+      console.error(error);
     }
-  };
+  }
 
   return (
-    <div className="mt-8 rounded-2xl border border-zinc-800 bg-zinc-900 p-6">
-      <h2 className="mb-6 text-xl font-semibold text-cyan-400">
+
+    <div className="bg-zinc-900 p-6 rounded-3xl">
+
+      <h2 className="text-2xl font-bold text-cyan-400 mb-6">
+
         CPU Usage Trend
+
       </h2>
 
-      <Line data={data} options={options} />
+      <ResponsiveContainer
+        width="100%"
+        height={350}
+      >
+
+        <LineChart
+          data={history}
+        >
+
+          <CartesianGrid
+            strokeDasharray="3 3"
+          />
+
+          <XAxis
+            dataKey="timestamp"
+          />
+
+          <YAxis />
+
+          <Tooltip />
+
+          <Line
+            type="monotone"
+            dataKey="cpu.usage_percent"
+            stroke="#00d9ff"
+          />
+
+        </LineChart>
+
+      </ResponsiveContainer>
+
     </div>
   );
 }

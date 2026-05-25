@@ -3,18 +3,19 @@ import dotenv from "dotenv";
 dotenv.config();
 import app from "./app.js";
 
-import connectMongo
-  from "./config/mongo.js";
+import connectMongo from "./config/mongo.js";
 
 import {
   connectPostgres
 } from "./config/postgres.js";
 
-import initAlertsTable
-  from "./db/initAlertsTable.js";
+import initAlertsTable from "./db/initAlertsTable.js";
 
-const PORT =
-  process.env.PORT || 5000;
+import historyRoutes from "./routes/history.js";
+
+import { Server } from "socket.io";
+
+const PORT = process.env.PORT || 5000;
 
 async function startServer() {
 
@@ -24,15 +25,32 @@ async function startServer() {
 
   await initAlertsTable();
 
-  app.listen(
-    PORT,
-    () => {
+  const server =
+  app.listen(PORT, () => {
 
-      console.log(
-        `Server running on port ${PORT}`
-      );
+    console.log(
+      `Server running on port ${PORT}`
+    );
+  });
+
+const io = new Server(
+  server,
+  {
+    cors: {
+      origin:
+        process.env.CLIENT_URL
     }
-  );
+  }
+);
+
+global.io = io;
+
+app.set("io", io);
+
+  app.use(
+  "/api/history",
+  historyRoutes
+);
 }
 
 startServer();

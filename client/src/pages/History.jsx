@@ -1,88 +1,140 @@
-import TrendChart from "../components/TrendChart";
-import StatusPill from "../components/StatusPill";
+import {
+
+  useEffect,
+  useState
+
+} from "react";
+
+import {
+
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  ResponsiveContainer
+
+} from "recharts";
+
+import api from "../services/api";
+
+import exportMetricsPdf from "../utils/exportMetricsPdf";
 
 function History() {
-  const logRuns = [
-    {
-      id: 1,
-      filename: "thermal_validation.log",
-      verdict: "FAIL",
-      analyzedAt: "2026-05-24 18:20"
-    },
-    {
-      id: 2,
-      filename: "boot_sequence.log",
-      verdict: "PASS",
-      analyzedAt: "2026-05-24 17:42"
-    },
-    {
-      id: 3,
-      filename: "memory_stress.log",
-      verdict: "FAIL",
-      analyzedAt: "2026-05-24 16:15"
+
+  const [
+
+    metrics,
+    setMetrics
+
+  ] = useState([]);
+
+  useEffect(() => {
+
+    fetchHistory();
+
+  }, []);
+
+  async function fetchHistory() {
+
+    try {
+
+      const response =
+        await api.get(
+          "/history"
+        );
+
+      setMetrics(
+        response.data.data
+      );
+
+    } catch (error) {
+
+      console.error(error);
     }
-  ];
+  }
 
   return (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold text-cyan-400">
-          History & Trends
-        </h1>
 
-        <p className="mt-2 text-zinc-400">
-          Historical system metrics and firmware validation runs.
-        </p>
+    <div className="p-8 text-white">
+
+      <h1 className="text-5xl font-bold text-cyan-400 mb-8">
+
+        System History
+
+      </h1>
+     
+     <div className="mb-6">
+
+  <button
+    onClick={() =>
+      exportMetricsPdf(metrics)
+    }
+
+    className="
+      rounded-xl
+      bg-cyan-500
+      px-5
+      py-3
+      font-semibold
+      text-black
+      transition
+      hover:bg-cyan-400
+    "
+  >
+    Download Metrics PDF
+  </button>
+
+</div>
+
+      <div className="bg-zinc-900 p-6 rounded-2xl">
+
+        <ResponsiveContainer
+          width="100%"
+          height={400}
+        >
+
+          <LineChart
+            data={metrics}
+          >
+
+            <CartesianGrid
+              strokeDasharray="3 3"
+            />
+
+            <XAxis
+              dataKey="timestamp"
+            />
+
+            <YAxis />
+
+            <Tooltip />
+
+            <Line
+              type="monotone"
+              dataKey="cpu.usage_percent"
+              stroke="#00d9ff"
+            />
+
+            <Line
+              type="monotone"
+              dataKey="memory.percent"
+              stroke="#ffcc00"
+            />
+
+            <Line
+              type="monotone"
+              dataKey="disk.percent"
+              stroke="#00ff88"
+            />
+
+          </LineChart>
+
+        </ResponsiveContainer>
+
       </div>
 
-      <TrendChart />
-
-      <div className="mt-8 overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900">
-        <div className="border-b border-zinc-800 p-4">
-          <h2 className="text-xl font-semibold text-cyan-400">
-            Recent Log Analysis Runs
-          </h2>
-        </div>
-
-        <table className="w-full">
-          <thead className="bg-zinc-800/50">
-            <tr>
-              <th className="px-4 py-3 text-left text-sm text-zinc-400">
-                Filename
-              </th>
-
-              <th className="px-4 py-3 text-left text-sm text-zinc-400">
-                Verdict
-              </th>
-
-              <th className="px-4 py-3 text-left text-sm text-zinc-400">
-                Analyzed At
-              </th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {logRuns.map((run) => (
-              <tr
-                key={run.id}
-                className="border-t border-zinc-800"
-              >
-                <td className="px-4 py-4 text-zinc-300">
-                  {run.filename}
-                </td>
-
-                <td className="px-4 py-4">
-                  <StatusPill status={run.verdict} />
-                </td>
-
-                <td className="px-4 py-4 text-zinc-400">
-                  {run.analyzedAt}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
     </div>
   );
 }

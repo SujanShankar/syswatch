@@ -3,8 +3,13 @@ import {
   useState
 } from "react";
 
-import api from
-  "../services/api";
+import api from "../services/api";
+
+  import socket from "../services/socket";
+
+import toast from "react-hot-toast";
+
+import exportAlertsPdf from "../utils/exportAlertsPdf";
 
 function Alerts() {
 
@@ -94,6 +99,36 @@ function Alerts() {
 
   }, []);
 
+  useEffect(() => {
+
+  socket.on(
+
+    "alert:new",
+
+    (alert) => {
+
+      toast(
+
+        `${alert.level}: ${alert.message}`,
+
+        {
+          duration: 4000
+        }
+      );
+
+      fetchAlerts();
+    }
+  );
+
+  return () => {
+
+    socket.off(
+      "alert:new"
+    );
+  };
+
+}, []);
+
   function getSeverityColor(level) {
 
     switch (level) {
@@ -139,6 +174,29 @@ function Alerts() {
         </p>
 
       </div>
+      
+      <div className="mb-6">
+
+  <button
+    onClick={() =>
+      exportAlertsPdf(alerts)
+    }
+
+    className="
+      rounded-xl
+      bg-cyan-500
+      px-5
+      py-3
+      font-semibold
+      text-black
+      transition
+      hover:bg-cyan-400
+    "
+  >
+    Download PDF Report
+  </button>
+
+</div>
 
       <div
         className="

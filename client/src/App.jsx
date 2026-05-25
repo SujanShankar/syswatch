@@ -7,6 +7,7 @@ import LogAnalyzer from "./pages/LogAnalyzer";
 import Alerts from "./pages/Alerts";
 import History from "./pages/History";
 
+
 function App() {
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
@@ -18,6 +19,7 @@ function App() {
           <Route path="/logs" element={<LogAnalyzer />} />
           <Route path="/alerts" element={<Alerts />} />
           <Route path="/history" element={<History />} />
+          <Route path="/history" element={<History />}/>
         </Routes>
       </main>
     </div>

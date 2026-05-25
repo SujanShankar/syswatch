@@ -22,7 +22,7 @@ export async function evaluateAlerts(
      
 
     for (const alert of alerts) {
-
+        const io = global.io;
       await pool.query(
 
         `
@@ -54,8 +54,12 @@ export async function evaluateAlerts(
           alert.message
         ]
       );
+       io.emit(
+    "alert:new",
+    alert
+  );
     }
-
+    return alerts;
   } catch (error) {
 
     console.error(
@@ -63,5 +67,6 @@ export async function evaluateAlerts(
     );
 
     console.error(error);
+     return [];
   }
 }
