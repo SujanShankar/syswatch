@@ -39,6 +39,46 @@ function Alerts() {
     }
   }
 
+  async function acknowledgeAlert(
+    id
+  ) {
+
+    try {
+
+      await api.patch(
+        `/alerts/${id}/ack`
+      );
+
+      fetchAlerts();
+
+    } catch (error) {
+
+      console.error(
+        "Failed to acknowledge alert"
+      );
+    }
+  }
+
+  async function resolveAlert(
+    id
+  ) {
+
+    try {
+
+      await api.patch(
+        `/alerts/${id}/resolve`
+      );
+
+      fetchAlerts();
+
+    } catch (error) {
+
+      console.error(
+        "Failed to resolve alert"
+      );
+    }
+  }
+
   useEffect(() => {
 
     fetchAlerts();
@@ -283,11 +323,82 @@ function Alerts() {
                       className="
                         px-6
                         py-4
-                        text-sm
-                        text-cyan-400
                       "
                     >
-                      {alert.status}
+
+                      <div
+                        className="
+                          flex
+                          items-center
+                          gap-2
+                        "
+                      >
+
+                        <span
+                          className="
+                            text-sm
+                            text-cyan-400
+                          "
+                        >
+                          {alert.status}
+                        </span>
+
+                        {
+                          alert.status === "OPEN" && (
+
+                            <button
+
+                              onClick={() =>
+                                acknowledgeAlert(
+                                  alert.id
+                                )
+                              }
+
+                              className="
+                                rounded-lg
+                                bg-yellow-500/20
+                                px-3
+                                py-1
+                                text-xs
+                                text-yellow-400
+                                transition
+                                hover:bg-yellow-500/30
+                              "
+                            >
+                              ACK
+                            </button>
+                          )
+                        }
+
+                        {
+                          alert.status !== "RESOLVED" && (
+
+                            <button
+
+                              onClick={() =>
+                                resolveAlert(
+                                  alert.id
+                                )
+                              }
+
+                              className="
+                                rounded-lg
+                                bg-red-500/20
+                                px-3
+                                py-1
+                                text-xs
+                                text-red-400
+                                transition
+                                hover:bg-red-500/30
+                              "
+                            >
+                              Resolve
+                            </button>
+                          )
+                        }
+
+                      </div>
+
                     </td>
 
                     <td
