@@ -8,17 +8,17 @@ from datetime import (
 
 THRESHOLDS = {
     "cpu_usage_percent": {
-        "warn": 80,
+        "warn": 1,
         "critical": 95
     },
 
     "memory_percent": {
-        "warn": 85,
+        "warn": 1,
         "critical": 95
     },
 
     "disk_percent": {
-        "warn": 80,
+        "warn": 1,
         "critical": 90
     },
 }
@@ -72,9 +72,11 @@ def evaluate_metrics(snapshot):
             "level": level,
 
             "threshold":
-                rule[
-                    level.lower()
-                ],
+    (
+        rule["critical"]
+        if level == "CRITICAL"
+        else rule["warn"]
+    ),
 
             "message":
                 f"{metric_key} "

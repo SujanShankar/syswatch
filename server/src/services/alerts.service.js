@@ -12,12 +12,14 @@ export async function evaluateAlerts(
   try {
 
     const alerts =
+    
       await runPythonScript(
         "alert_engine.py",
         [
           JSON.stringify(snapshot)
         ]
       );
+     
 
     for (const alert of alerts) {
 
